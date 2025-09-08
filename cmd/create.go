@@ -25,6 +25,7 @@ var createCmd = &cobra.Command{
 		desc, _ := cmd.Flags().GetString("desc")
 		template, _ := cmd.Flags().GetString("templ")
 		draft := !utils.IsFalse(dft)
+		shouldOpen, _ := cmd.Flags().GetBool("open")
 
 		config.GetInstance().Load()
 
@@ -54,6 +55,13 @@ var createCmd = &cobra.Command{
 
 		lnk := termenv.Hyperlink(pr.Link, "open PR")
 
+		if shouldOpen {
+			err := utils.OpenBrowser(pr.Link)
+			if err != nil {
+				fmt.Printf("Failed to open browser: %v\n", err)
+			}
+		}
+
 		fmt.Printf("PR created with ID: %s (%s)\n", pr.ID, lnk)
 		return nil
 	},
@@ -75,5 +83,6 @@ func init() {
 	createCmd.Flags().BoolP("draft", "f", true, "draft. default is true")
 	createCmd.Flags().StringP("desc", "d", "", "description. default is emty")
 	createCmd.Flags().StringP("templ", "m", "", "template. default is none")
+	createCmd.Flags().BoolP("open", "o", false, "open the created PR in the browser")
 
 }
